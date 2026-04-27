@@ -15,3 +15,5 @@
 
 ## Documents
 
+- Development Philosophy: @docs/development/philosophy.md
+
