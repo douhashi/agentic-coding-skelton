@@ -16,4 +16,5 @@
 ## Documents
 
 - Development Philosophy: @docs/development/philosophy.md
+- Operations Index: @docs/operations/INDEX.md
 
