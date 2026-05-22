@@ -10,3 +10,6 @@
 !.envrc.example
 !.envrc.sample
 .direnv/
+
+# Temp design notes
+.tmp/
