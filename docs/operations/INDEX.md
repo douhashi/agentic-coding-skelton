@@ -1,3 +1,1 @@
 # Operations Documents
-
-（まだドキュメントはありません）

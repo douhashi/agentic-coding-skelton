@@ -1,0 +1,27 @@
+name: CI
+
+# PR（対象ブランチ main）で品質チェックを実行する。
+# 品質コマンドは mise タスク（mise.toml）を SSoT として呼び出し、CI 側で二重定義しない。
+on:
+  pull_request:
+    branches: [main]
+
+# 同一 PR への連続 push では古い run をキャンセルする。
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # mise セットアップ + `mise install`（tools 解決）。
+      # ツールのバージョンは mise.toml [tools] を SSoT とする（CI 側で pin しない）。
+      - name: Setup mise
+        uses: jdx/mise-action@v4
+
+      - name: Lint
+        run: mise run lint

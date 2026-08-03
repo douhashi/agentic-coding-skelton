@@ -11,10 +11,11 @@
 
 ## Context
 
-- Document System: @docs/document_system.md
+- Document System: @docs/document_system/README.md
 
 ## Documents
 
+- Development Index: @docs/development/INDEX.md
 - Development Philosophy: @docs/development/philosophy.md
 - Operations Index: @docs/operations/INDEX.md
 
