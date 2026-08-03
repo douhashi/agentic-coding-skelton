@@ -1,0 +1,9 @@
+# git hooks。`mise run setup` が `lefthook install` で .git/hooks に導入する。
+pre-commit:
+  parallel: true
+  commands:
+    # INDEX.md と roadmap.md の書式契約。エントリと実在ファイルの双方向一致を
+    # 見るため、staged ファイルではなく docs 全体を対象にする。
+    docs-format:
+      glob: "docs/**/*.md"
+      run: python3 scripts/check-docs-format.py
