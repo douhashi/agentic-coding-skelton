@@ -9,9 +9,14 @@ lefthook = "1.13.6"
 description = "git hooks を導入し、開発を始められる状態にする"
 run = ["lefthook install"]
 
-[tasks.lint]
+[tasks."lint:docs"]
 description = "ドキュメントの書式契約を検査する"
 # 書式の定義は docs/document_system/templates/。上限が無いと各変更の
 # 「もう一言だけ足す」が複利で膨らむため、機械的に落とす。
 # Python 3 標準ライブラリのみで動き、この検査自体は追加の依存を持たない。
 run = ["python3 scripts/check-docs-format.py"]
+
+[tasks.check]
+description = "フルチェック（CI で docs/ 以外に変更がある PR に実行する）"
+# 品質タスクを束ねる入口。テスト等を足したら depends に加える（CI 側は変えない）。
+depends = ["lint:docs"]

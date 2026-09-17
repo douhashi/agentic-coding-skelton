@@ -24,11 +24,12 @@ mise run setup   # git hooks を導入し、開発を始められる状態にす
 | タスク | 内容 |
 |---|---|
 | `mise run setup` | git hooks の導入 |
-| `mise run lint` | ドキュメントの書式契約の検査 |
+| `mise run lint:docs` | ドキュメントの書式契約の検査 |
+| `mise run check` | フルチェック（品質タスクをすべて束ねる） |
 
 ## 何が検査されるか
 
-`mise run lint` と pre-commit フックが `scripts/check-docs-format.py` を通す。
+`mise run lint:docs` と pre-commit フックが `scripts/check-docs-format.py` を通す。
 検査するのは、放置すると必ず膨らむ 2 種類だけである。
 
 | 対象 | 主な検査 |
@@ -43,5 +44,14 @@ mise run setup   # git hooks を導入し、開発を始められる状態にす
 
 ## CI
 
-CI では `mise install` → `mise run lint` を実行する。
+CI は PR の変更範囲で実行内容を分ける。
+
+| 変更範囲 | 実行 |
+|---|---|
+| `docs/` 配下のみ | `mise run lint:docs`（書式契約だけ） |
+| それ以外を含む | `mise run check`（フルチェック） |
+
+テストや検査を足すときは `mise.toml` の `[tasks.check]` の `depends` に加える。CI は変えない。
+必須ステータスチェックには、どちらの分岐でも結果を返す `result` ジョブを指定する。
+
 書式契約はレビューの目視ではなく、**機械的に落とす**（規約を文章で定めるだけでは守られない）。

@@ -2,6 +2,11 @@ name: CI
 
 # PR（対象ブランチ main）で品質チェックを実行する。
 # 品質コマンドは mise タスク（mise.toml）を SSoT として呼び出し、CI 側で二重定義しない。
+#
+# 変更範囲で実行内容を分ける:
+#   - docs/ 配下のみの変更 → docs の書式契約だけ（mise run lint:docs）
+#   - それ以外を含む変更   → フルチェック（mise run check）
+# branch protection の必須チェックには、どちらに分岐しても必ず結果を返す `result` を指定する。
 on:
   pull_request:
     branches: [main]
@@ -12,7 +17,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.detect.outputs.code }}
+    steps:
+      # pull_request では PR のマージコミットが checkout される。
+      # 第 1 親（HEAD^1）がマージ先の main なので、深さ 2 で差分が取れる。
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changes outside docs/
+        id: detect
+        run: |
+          git diff --name-only HEAD^1 HEAD
+          if git diff --quiet HEAD^1 HEAD -- . ':(exclude)docs/'; then
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  docs:
+    needs: changes
+    if: needs.changes.outputs.code == 'false'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,5 +52,29 @@ jobs:
       - name: Setup mise
         uses: jdx/mise-action@v4
 
-      - name: Lint
-        run: mise run lint
+      - name: Lint docs
+        run: mise run lint:docs
+
+  full:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup mise
+        uses: jdx/mise-action@v4
+
+      - name: Full check
+        run: mise run check
+
+  # 分岐でスキップされたジョブは成功扱い、失敗・キャンセルは不合格として集約する。
+  result:
+    needs: [changes, docs, full]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aggregate
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
