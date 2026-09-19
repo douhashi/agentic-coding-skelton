@@ -31,7 +31,7 @@ EXEMPT_DIR_NAMES = {"document_system"}
 # roadmap の見出しとして許す形。機能軸のグルーピングを作らせない。
 ROADMAP_TOP_HEADINGS = {"## 予定（上から着手順）", "## 完了"}
 
-# roadmap の項目のキー。独自の ID は振らず、行末の課題番号をキーにする。
+# roadmap の項目が対応する課題。独自の ID は振らない。未起票の項目は持たない。
 ROADMAP_ISSUE_REF = re.compile(r" → #(\d+)$")
 
 
@@ -126,8 +126,6 @@ def check_roadmap(path: Path) -> list[Violation]:
                 out.append(Violation(path, i, "完了項目に [dep …] を残さない"))
             if (m := ROADMAP_ISSUE_REF.search(line)) is not None:
                 issues.append(m.group(1))
-            else:
-                out.append(Violation(path, i, "行末に課題番号（→ #<番号>）が無い"))
             continue
 
         if line.startswith("  ") and line.strip().startswith("- "):
