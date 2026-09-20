@@ -167,6 +167,11 @@ def main(argv: list[str]) -> int:
             continue
         if (index := directory / "INDEX.md").exists():
             continue
+        # INDEX.md は経路案内なので、案内する文書が無いディレクトリには要らない。
+        # 画像などの置き場（生成物の出力先を含む）をここで違反にすると、
+        # 出力先を作っただけの人が以後コミットできなくなる。
+        if not any(directory.rglob("*.md")):
+            continue
         violations.append(Violation(index, 0, "ディレクトリに INDEX.md が無い"))
 
     roadmap = root / "development" / "roadmap.md"

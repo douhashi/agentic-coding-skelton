@@ -28,7 +28,9 @@ docs/
 
 `docs/document_system/` describes **the documentation system itself**, not the project.
 It is meta rather than content, and is therefore **exempt from the `INDEX.md` requirement**.
-Every other directory under `docs/` must have one.
+Every other directory that holds documents must have one. A directory with no Markdown in it —
+an image folder, or where a tool writes its output — carries nothing to navigate to, so it is
+not a content directory and is skipped.
 
 ## Document Characteristics
 
